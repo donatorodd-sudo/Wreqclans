@@ -1,1 +1,98 @@
 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W-REQ CLANS | OFFICIAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #000; color: #fff; font-family: sans-serif; }
+        .pasa-row { 
+            border-left: 5px solid #c5a059 !important; 
+            background: linear-gradient(90deg, rgba(197, 160, 89, 0.1), transparent) !important;
+        }
+        .pasa-tag { 
+            background: #c5a059; color: #000; font-size: 10px; font-weight: 900; 
+            padding: 2px 6px; border-radius: 2px; margin-left: 10px; 
+        }
+        .member-list { display: none; }
+        .active .member-list { display: block; }
+    </style>
+</head>
+<body>
+    <nav class="p-6 border-b border-white/5 flex justify-between items-center bg-black/90 sticky top-0 z-50">
+        <h1 class="text-2xl font-black italic uppercase">W-<span class="text-blue-600">REQ</span> CLANS</h1>
+        <div id="status" class="text-[10px] font-bold text-yellow-500 uppercase animate-pulse">API Bekleniyor...</div>
+    </nav>
+
+    <div id="main-content" class="max-w-4xl mx-auto mt-10 p-4 space-y-4">
+        <div id="loader" class="text-center py-20 text-gray-700 font-bold tracking-[5px]">VERİLER ÇEKİLİYOR...</div>
+    </div>
+
+    <script>
+        // TOKENINI BURAYA YAZ
+        const TOKEN = "5.47.168.106"; 
+        const CLANS = ["#2QRGLRGG9", "#2PUJVQ898", "#YJJ8YLUJ"];
+
+        async function start() {
+            const container = document.getElementById('main-content');
+            let content = "";
+
+            for (let tag of CLANS) {
+                try {
+                    // API isteği (Proxy ile CORS engeli aşılıyor)
+                    const url = `https://api.clashofclans.com/v1/clans/${encodeURIComponent(tag)}`;
+                    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                    const json = await res.json();
+                    const data = JSON.parse(json.contents);
+
+                    if (data && data.memberList) {
+                        const isPasa = data.tag === "#2QRGLRGG9";
+                        const totalDon = data.memberList.reduce((s, m) => s + m.donations, 0);
+
+                        content += `
+                            <div class="bg-[#0a0a0a] border border-white/5 rounded-lg overflow-hidden ${isPasa ? 'pasa-row' : ''}">
+                                <div class="p-5 flex justify-between items-center cursor-pointer" onclick="this.parentElement.classList.toggle('active')">
+                                    <div class="flex items-center gap-4">
+                                        <img src="${data.badgeUrls.small}" class="w-12 h-12">
+                                        <div>
+                                            <div class="flex items-center">
+                                                <span class="font-bold uppercase">${data.name}</span>
+                                                ${isPasa ? '<span class="pasa-tag">PAŞA</span>' : ''}
+                                            </div>
+                                            <span class="text-[10px] text-gray-600">${data.tag}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-blue-500 font-black text-xl italic">${totalDon.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <div class="member-list bg-white/5 border-t border-white/5">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 p-2 gap-1">
+                                        ${data.memberList.sort((a,b) => b.donations - a.donations).slice(0, 50).map(m => `
+                                            <div class="bg-black p-3 flex justify-between items-center text-xs">
+                                                <span>${m.role === 'leader' ? '👑' : (m.role === 'coLeader' ? '⭐' : '🛡️')} ${m.name} <small class="text-blue-500 font-bold ml-1">${m.expLevel}</small></span>
+                                                <span class="text-blue-400 font-black">${m.donations}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (e) { console.error("API Hatası"); }
+            }
+            
+            if(content) {
+                container.innerHTML = content;
+                document.getElementById('status').innerText = "BAĞLANTI OK";
+                document.getElementById('status').classList.replace('text-yellow-500', 'text-green-500');
+            } else {
+                container.innerHTML = "<p class='text-center text-red-500 font-bold'>API ANAHTARI HATALI VEYA IP ENGELİ VAR!</p>";
+            }
+        }
+        start();
+    </script>
+</body>
+</html>
