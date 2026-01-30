@@ -1,5 +1,5 @@
 // script.js
-const MY_API_KEY = "5.47.168.106"; // Kendi key'ini tırnak içine yaz
+const MY_API_KEY = "5.47.166.16"; // Kendi key'ini tırnak içine yaz
 const CLAN_TAGS = ["#2QRGLRGG9", "#2PUJVQ898", "#YJJ8YLUJ"]; // Sıralanacak klanlar
 
 // Rol Sembolleri
