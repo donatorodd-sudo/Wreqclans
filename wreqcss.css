@@ -1,0 +1,24 @@
+/* style.css */
+.pasa-row {
+    border-left: 4px solid #c5a059 !important;
+    background: linear-gradient(90deg, rgba(197, 160, 89, 0.1) 0%, transparent 100%) !important;
+    box-shadow: 0 10px 30px -10px rgba(197, 160, 89, 0.2);
+}
+
+.pasa-tag {
+    background: #c5a059;
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+}
+
+.clan-card { transition: transform 0.2s ease; }
+.clan-card:hover { border-color: rgba(59, 130, 246, 0.3); }
+
+/* Mobilde dokunmayı kolaylaştır */
+@media (max-width: 768px) {
+    .member-grid { grid-template-columns: 1fr; }
+}
