@@ -1,97 +1,622 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>W-REQ CLANS | OFFICIAL</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .pasa-row { border-left: 6px solid #c5a059 !important; background: linear-gradient(90deg, rgba(197, 160, 89, 0.15), transparent) !important; }
-        .pasa-tag { background: #c5a059; color: #000; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 3px; margin-left: 10px; box-shadow: 0 0 10px rgba(197, 160, 89, 0.5); }
-        .member-grid { display: none; }
-        .active .member-grid { display: grid; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depo SKT Takip Pro (Offline)</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg-primary: #0E1217;
+      --bg-secondary: #181F26;
+      --bg-card: #1F2832;
+      --bg-input: #2A3542;
+      --bg-hover: #334150;
+      --border-color: #3B4A5A;
+      --text-primary: #F0F4F8;
+      --text-secondary: #B0C4D9;
+      --text-muted: #7A8FA3;
+      --accent: #F5A623;
+      --accent-dark: #C4841A;
+      --green: #36C98E;
+      --red: #E45C5C;
+      --orange: #F5A623;
+      --shadow: 0 8px 32px rgba(0,0,0,0.5);
+      --radius: 12px;
+      --transition: 0.2s ease;
+    }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background:var(--bg-primary); color:var(--text-primary); min-height:100vh; padding-bottom:40px; }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px; }
+
+    .app-header { background:var(--bg-secondary); border-bottom:1px solid var(--border-color); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; position:sticky; top:0; z-index:100; backdrop-filter:blur(8px); }
+    .app-header .logo { display:flex; align-items:center; gap:10px; font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+    .app-header .logo span { color:var(--text-secondary); font-weight:400; }
+    .header-clock { font-family:'Courier New',monospace; font-size:14px; color:var(--text-secondary); text-align:right; line-height:1.4; }
+    .header-clock strong { display:block; color:var(--text-primary); font-size:18px; font-weight:600; }
+
+    .app-nav { background:var(--bg-secondary); border-bottom:1px solid var(--border-color); padding:0 24px; display:flex; gap:4px; overflow-x:auto; flex-wrap:nowrap; }
+    .app-nav .nav-item { padding:14px 20px; font-size:14px; font-weight:500; color:var(--text-muted); border:none; background:transparent; cursor:pointer; border-bottom:3px solid transparent; transition:var(--transition); white-space:nowrap; display:flex; align-items:center; gap:8px; }
+    .app-nav .nav-item:hover { color:var(--text-primary); }
+    .app-nav .nav-item.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+    .app-main { max-width:1400px; margin:24px auto; padding:0 24px; }
+    .page { display:none; animation:fadeIn 0.25s ease; }
+    .page.active { display:block; }
+    @keyframes fadeIn { 0%{opacity:0;transform:translateY(6px);} 100%{opacity:1;transform:translateY(0);} }
+
+    .card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius); padding:20px 24px; box-shadow:var(--shadow); margin-bottom:24px; }
+    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px; }
+    .card-header h2 { font-size:18px; font-weight:600; letter-spacing:-0.3px; }
+    .card-header h2 .icon { margin-right:8px; }
+
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; }
+    .stat-item { background:var(--bg-secondary); padding:16px 18px; border-radius:var(--radius); border-left:4px solid var(--accent); }
+    .stat-item .number { font-size:32px; font-weight:700; line-height:1.2; font-family:'Courier New',monospace; }
+    .stat-item .label { font-size:12px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); margin-top:4px; }
+    .stat-item.danger { border-left-color:var(--red); }
+    .stat-item.warning { border-left-color:var(--orange); }
+    .stat-item.success { border-left-color:var(--green); }
+
+    .form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; align-items:end; }
+    .form-group { display:flex; flex-direction:column; gap:4px; }
+    .form-group label { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:600; }
+    .form-group input, .form-group select { background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; color:var(--text-primary); font-size:14px; transition:var(--transition); width:100%; }
+    .form-group input:focus, .form-group select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(245,166,35,0.2); }
+    .form-group input::placeholder { color:var(--text-muted); }
+
+    .btn { border:none; border-radius:8px; padding:10px 18px; font-weight:600; font-size:13px; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:6px; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border-color); }
+    .btn-primary { background:var(--accent); color:#0E1217; border-color:var(--accent); }
+    .btn-primary:hover { background:var(--accent-dark); border-color:var(--accent-dark); }
+    .btn-danger { background:var(--red); color:#fff; border-color:var(--red); }
+    .btn-danger:hover { background:#c94a4a; }
+    .btn-success { background:var(--green); color:#0E1217; border-color:var(--green); }
+    .btn-success:hover { background:#2bb07a; }
+    .btn-outline { background:transparent; border:1px solid var(--border-color); }
+    .btn-outline:hover { background:var(--bg-hover); }
+    .btn-sm { padding:6px 12px; font-size:12px; }
+
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th { text-align:left; padding:12px 10px; color:var(--text-muted); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid var(--border-color); }
+    td { padding:12px 10px; border-bottom:1px solid var(--border-color); vertical-align:middle; }
+    tr:hover td { background:var(--bg-hover); }
+
+    .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:600; background:var(--bg-input); color:var(--text-secondary); }
+    .badge-danger { background:var(--red); color:#fff; }
+    .badge-warning { background:var(--orange); color:#0E1217; }
+    .badge-success { background:var(--green); color:#0E1217; }
+    .badge-mono { font-family:'Courier New',monospace; }
+
+    .empty-state { text-align:center; padding:48px 20px; color:var(--text-muted); }
+    .empty-state .icon { font-size:48px; margin-bottom:12px; opacity:0.4; display:block; }
+
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:200; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius); max-width:520px; width:100%; box-shadow:var(--shadow); animation:fadeIn 0.2s ease; }
+    .modal-header { padding:18px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; }
+    .modal-header h3 { font-size:18px; }
+    .modal-header .close-modal { background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; transition:var(--transition); }
+    .modal-header .close-modal:hover { color:var(--text-primary); }
+    .modal-body { padding:24px; display:flex; flex-direction:column; gap:14px; }
+    .modal-footer { padding:16px 24px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; }
+
+    @media (max-width:768px) {
+      .app-header { flex-direction:column; align-items:stretch; text-align:center; }
+      .header-clock { text-align:center; }
+      .app-nav { padding:0 12px; gap:2px; }
+      .app-nav .nav-item { padding:12px 14px; font-size:13px; }
+      .form-row { grid-template-columns:1fr; }
+      .stat-grid { grid-template-columns:1fr 1fr; }
+      .card { padding:16px; }
+    }
+    @media (max-width:480px) { .stat-grid { grid-template-columns:1fr; } }
+  </style>
 </head>
-<body class="bg-[#050505] text-white font-sans">
-    <nav class="p-6 border-b border-white/5 flex justify-between items-center bg-black/80 sticky top-0 z-50 backdrop-blur">
-        <h1 class="text-2xl font-black italic tracking-tighter uppercase">W-<span class="text-blue-600">REQ</span> CLANS</h1>
-        <div id="status" class="text-[10px] font-bold text-yellow-500 uppercase tracking-widest">SİSTEM KONTROL EDİLİYOR...</div>
-    </nav>
+<body>
 
-    <div id="clan-container" class="max-w-4xl mx-auto p-4 md:p-8 space-y-4">
-        <div class="text-center py-20 opacity-20 text-xs tracking-[10px] animate-pulse">VERİLER YÜKLENİYOR...</div>
+<header class="app-header">
+  <div class="logo"><span>📦</span> Depo SKT <span>Pro</span></div>
+  <div class="header-clock">
+    <span id="todayLabel">—</span>
+    <strong id="clockTime">--:--:--</strong>
+  </div>
+</header>
+
+<nav class="app-nav" id="mainNav">
+  <button class="nav-item active" data-page="dashboard"><span>📊</span> Dashboard</button>
+  <button class="nav-item" data-page="giris"><span>➕</span> Ürün Girişi</button>
+  <button class="nav-item" data-page="cikis"><span>➖</span> Ürün Çıkışı</button>
+  <button class="nav-item" data-page="liste"><span>📋</span> Stok Listesi</button>
+  <button class="nav-item" data-page="rapor"><span>📄</span> Rapor & Geçmiş</button>
+  <button class="nav-item" data-page="veri"><span>💾</span> Veri Yönetimi</button>
+</nav>
+
+<main class="app-main">
+
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">📈</span> Özet</h2>
+        <span style="font-size:13px; color:var(--text-muted);">Son güncelleme: <span id="lastUpdate">—</span></span>
+      </div>
+      <div class="stat-grid" id="dashboardStats"></div>
     </div>
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">⏰</span> Kritik & Yaklaşan SKT'ler</h2>
+        <span class="badge" id="criticalCount">0 ürün</span>
+      </div>
+      <div id="criticalList" class="table-wrap"></div>
+    </div>
+  </section>
 
-    <script>
-        // --- BURAYI GÜNCELLE ---
-        const API_KEY = "5.47.166.16"; 
-        const CLAN_TAGS = ["#2QRGLRGG9", "#2PUJVQ898", "#YJJ8YLUJ"]; 
-        // ------------------------
+  <!-- ÜRÜN GİRİŞ -->
+  <section class="page" id="page-giris">
+    <div class="card">
+      <div class="card-header"><h2><span class="icon">➕</span> Yeni Ürün Ekle</h2></div>
+      <form id="addProductForm" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group"><label>Ürün Adı *</label><input type="text" id="f_name" placeholder="Örn. Süt 1L" required></div>
+          <div class="form-group"><label>Miktar</label><input type="number" id="f_qty" placeholder="Adet" min="1" value="1"></div>
+          <div class="form-group"><label>Kategori</label><select id="f_cat"><option value="">Seçin</option><option>Gıda</option><option>İlaç / Sağlık</option><option>Kozmetik</option><option>Temizlik</option><option>Diğer</option></select></div>
+          <div class="form-group"><label>Parti / Lot</label><input type="text" id="f_lot" placeholder="Opsiyonel"></div>
+          <div class="form-group"><label>Son Kullanma Tarihi *</label><input type="date" id="f_date" required></div>
+          <div class="form-group" style="justify-content:flex-end;"><button type="submit" class="btn btn-primary"><span>💾</span> Ürünü Ekle</button></div>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2><span class="icon">📤</span> Hızlı Toplu Ekleme</h2></div>
+      <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">Her satıra bir ürün: <strong>ad, miktar, kategori, lot, SKT (YYYY-MM-DD)</strong> virgülle ayrılmış.</p>
+      <textarea id="bulkText" rows="4" style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; padding:12px; color:var(--text-primary); font-family:'Courier New',monospace; font-size:13px;" placeholder="Süt 1L, 10, Gıda, L-001, 2026-12-31"></textarea>
+      <button class="btn btn-primary" style="margin-top:10px;" id="bulkAddBtn"><span>➕</span> Toplu Ekle</button>
+    </div>
+  </section>
 
-        async function fetchClans() {
-            const container = document.getElementById('clan-container');
-            const status = document.getElementById('status');
-            let html = "";
+  <!-- ÜRÜN ÇIKIŞ -->
+  <section class="page" id="page-cikis">
+    <div class="card">
+      <div class="card-header"><h2><span class="icon">➖</span> Ürün Çıkışı (Satış / Kullanım)</h2></div>
+      <form id="exitForm">
+        <div class="form-row">
+          <div class="form-group"><label>Ürün *</label><select id="exitProduct" required><option value="">Seçiniz</option></select></div>
+          <div class="form-group"><label>Çıkış Miktarı *</label><input type="number" id="exitQty" placeholder="Adet" min="1" value="1" required></div>
+          <div class="form-group"><label>Çıkış Sebebi</label><select id="exitReason"><option value="Satış">Satış</option><option value="Kullanım">Kullanım</option><option value="İade">İade</option><option value="Hurda">Hurda</option></select></div>
+          <div class="form-group" style="justify-content:flex-end;"><button type="submit" class="btn btn-danger"><span>➡️</span> Çıkış Yap</button></div>
+        </div>
+      </form>
+      <div id="exitProductInfo" style="margin-top:10px; color:var(--text-secondary); font-size:13px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2><span class="icon">🕒</span> Son Çıkışlar</h2></div>
+      <div id="recentExits" class="table-wrap"></div>
+    </div>
+  </section>
 
-            for (let tag of CLAN_TAGS) {
-                try {
-                    const proxy = "https://api.allorigins.win/get?url=";
-                    const target = `https://api.clashofclans.com/v1/clans/${encodeURIComponent(tag)}`;
-                    const res = await fetch(proxy + encodeURIComponent(target));
-                    const json = await res.json();
-                    const data = JSON.parse(json.contents);
+  <!-- STOK LISTESİ -->
+  <section class="page" id="page-liste">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">📋</span> Tüm Ürünler</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="listSearch" placeholder="Ara..." style="background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; padding:8px 12px; color:var(--text-primary);">
+          <select id="listFilter" style="background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; padding:8px 12px; color:var(--text-primary);">
+            <option value="all">Tümü</option>
+            <option value="expired">Süresi Geçmiş</option>
+            <option value="critical">Kritik (≤7 gün)</option>
+            <option value="warning">Uyarı (≤30 gün)</option>
+            <option value="safe">Güvenli</option>
+          </select>
+          <select id="listSort" style="background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; padding:8px 12px; color:var(--text-primary);">
+            <option value="date_asc">SKT (Yakın → Uzak)</option>
+            <option value="date_desc">SKT (Uzak → Yakın)</option>
+            <option value="name_asc">İsim (A-Z)</option>
+            <option value="stock_desc">Stok (Çok → Az)</option>
+          </select>
+        </div>
+      </div>
+      <div id="productTableWrap" class="table-wrap"></div>
+    </div>
+  </section>
 
-                    if (data && data.memberList) {
-                        const isMyClan = data.tag === "#2QRGLRGG9";
-                        const totalDon = data.memberList.reduce((s, m) => s + m.donations, 0);
+  <!-- RAPOR & GEÇMİŞ -->
+  <section class="page" id="page-rapor">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">📄</span> Çıkış Geçmişi</h2>
+        <button class="btn btn-outline btn-sm" id="clearExitsBtn"><span>🗑️</span> Geçmişi Temizle</button>
+      </div>
+      <div id="exitHistoryTable" class="table-wrap"></div>
+    </div>
+  </section>
 
-                        html += `
-                            <div class="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden ${isMyClan ? 'pasa-row' : ''} transition-all">
-                                <div class="p-5 flex justify-between items-center cursor-pointer" onclick="this.parentElement.classList.toggle('active')">
-                                    <div class="flex items-center gap-4">
-                                        <img src="${data.badgeUrls.small}" class="w-14 h-14">
-                                        <div>
-                                            <div class="flex items-center gap-2">
-                                                <h2 class="font-bold text-lg uppercase italic">${data.name}</h2>
-                                                ${isMyClan ? '<span class="pasa-tag">PAŞA</span>' : ''}
-                                            </div>
-                                            <p class="text-[10px] text-gray-500 font-bold">${data.tag} • LVL ${data.clanLevel}</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-[9px] text-gray-600 font-black uppercase tracking-widest">Bağış</p>
-                                        <p class="text-blue-500 font-black text-2xl italic">${totalDon.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                                <div class="member-grid bg-white/[0.02] border-t border-white/5 p-2 grid grid-cols-1 md:grid-cols-2 gap-px">
-                                    ${data.memberList.sort((a,b) => b.donations - a.donations).slice(0, 20).map(m => `
-                                        <div class="bg-black/40 p-3 flex justify-between items-center border border-white/[0.03]">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-[10px] text-blue-500 font-bold bg-blue-500/10 px-1 rounded">${m.expLevel}</span>
-                                                <span class="text-xs font-bold">${m.role === 'leader' ? '👑' : (m.role === 'coLeader' ? '⭐' : '👤')} ${m.name}</span>
-                                            </div>
-                                            <span class="text-xs font-black text-blue-400">${m.donations.toLocaleString()}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>`;
-                    }
-                } catch (e) { console.error(e); }
-            }
+  <!-- VERİ YÖNETİMİ -->
+  <section class="page" id="page-veri">
+    <div class="card">
+      <div class="card-header"><h2><span class="icon">💾</span> Veri Yedekleme & Geri Yükleme</h2></div>
+      <div style="display:flex; flex-wrap:wrap; gap:12px;">
+        <button class="btn btn-outline" id="exportDataBtn"><span>📥</span> Veriyi Dışa Aktar (JSON)</button>
+        <button class="btn btn-outline" id="importDataBtn"><span>📤</span> Veriyi İçe Aktar</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <button class="btn btn-danger" id="clearAllDataBtn"><span>🗑️</span> Tüm Verileri Sil</button>
+      </div>
+      <div style="margin-top:16px; color:var(--text-muted); font-size:13px;">
+        <p><strong>Toplam ürün:</strong> <span id="totalProductsInfo">0</span> &nbsp;|&nbsp; <strong>Toplam çıkış:</strong> <span id="totalExitsInfo">0</span></p>
+      </div>
+    </div>
+  </section>
 
-            if (html) {
-                container.innerHTML = html;
-                status.innerText = "VERİLER GÜNCEL";
-                status.className = "text-[10px] font-bold text-green-500 uppercase tracking-widest";
-            } else {
-                container.innerHTML = `
-                    <div class="bg-red-500/10 border border-red-500/50 p-6 rounded-lg text-center">
-                        <p class="text-red-500 font-bold">VERİ ALINAMADI!</p>
-                        <p class="text-xs mt-2 text-gray-400">Sebebi şunlar olabilir:<br>1. Token hatalı.<br>2. Supercell IP ayarı 0.0.0.0 değil.<br>3. İnternet bağlantısı kesik.</p>
-                    </div>`;
-            }
-        }
-        fetchClans();
-    </script>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><span class="icon">✏️</span> Ürün Düzenle</h3>
+      <button class="close-modal" id="closeEditModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Ürün Adı</label><input type="text" id="e_name"></div>
+      <div class="form-group"><label>Miktar</label><input type="number" id="e_qty" min="0"></div>
+      <div class="form-group"><label>Kategori</label><select id="e_cat"><option value="">Seçin</option><option>Gıda</option><option>İlaç / Sağlık</option><option>Kozmetik</option><option>Temizlik</option><option>Diğer</option></select></div>
+      <div class="form-group"><label>Parti / Lot</label><input type="text" id="e_lot"></div>
+      <div class="form-group"><label>Son Kullanma Tarihi</label><input type="date" id="e_date"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="cancelEdit">Vazgeç</button>
+      <button class="btn btn-primary" id="saveEdit"><span>💾</span> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  //  DATA LAYER
+  // ============================================================
+  const STORAGE_KEY = 'depo_skt_pro_data';
+  let state = { products: [], exits: [] };
+
+  function uid() { return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
+  function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+  function daysRemaining(dateStr) { return Math.round((new Date(dateStr+'T00:00:00') - today()) / 86400000); }
+  function statusOf(days) { if (days < 0) return 'expired'; if (days <= 7) return 'critical'; if (days <= 30) return 'warning'; return 'safe'; }
+  function formatDate(dateStr) { const d = new Date(dateStr+'T00:00:00'); return d.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+  function formatDateTime(iso) { const d = new Date(iso); return d.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function escapeHtml(str) { if (!str) return ''; const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return str.replace(/[&<>"']/g, x=>m[x]); }
+  function getStatusBadge(days) {
+    const s = statusOf(days);
+    if (s === 'expired') return `<span class="badge badge-danger">Süresi Geçmiş</span>`;
+    if (s === 'critical') return `<span class="badge badge-warning">Kritik (${days} gün)</span>`;
+    if (s === 'warning') return `<span class="badge badge-warning">Yaklaşıyor (${days} gün)</span>`;
+    return `<span class="badge badge-success">Güvenli</span>`;
+  }
+
+  function loadData() {
+    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) { const p = JSON.parse(raw); state.products = p.products || []; state.exits = p.exits || []; } } catch(e){}
+  }
+  function saveData() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ products: state.products, exits: state.exits })); } catch(e){} }
+
+  function addProduct(name, qty, category, lot, expiry) {
+    const p = { id: uid(), name: name.trim(), qty: parseInt(qty)||0, category: category||null, lot: lot?lot.trim():null, expiry, createdAt: new Date().toISOString() };
+    state.products.push(p); saveData(); return p;
+  }
+  function removeProduct(id) { state.products = state.products.filter(p=>p.id!==id); saveData(); }
+  function updateProduct(id, data) { const p = state.products.find(x=>x.id===id); if(p) Object.assign(p, data); saveData(); return p; }
+  function createExit(productId, qty, reason) {
+    const p = state.products.find(x=>x.id===productId);
+    if (!p || p.qty < qty) return null;
+    p.qty -= qty;
+    const exit = { id: uid(), productId: p.id, productName: p.name, qty, reason: reason||'Satış', date: new Date().toISOString() };
+    state.exits.push(exit); saveData(); return exit;
+  }
+  function deleteExit(id) { state.exits = state.exits.filter(e=>e.id!==id); saveData(); }
+  function clearAllExits() { state.exits = []; saveData(); }
+  function clearAllData() { state.products = []; state.exits = []; saveData(); }
+  function exportData() { return JSON.stringify(state, null, 2); }
+  function importData(json) { try { const d = JSON.parse(json); if (d.products && d.exits) { state.products = d.products; state.exits = d.exits; saveData(); return true; } } catch(e){} return false; }
+
+  // ============================================================
+  //  RENDER FUNCTIONS
+  // ============================================================
+  function renderAll() {
+    renderDashboard();
+    renderExitProductSelect();
+    renderRecentExits();
+    renderProductTable();
+    renderExitHistory();
+    renderDataInfo();
+    renderCriticalList();
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('tr-TR');
+  }
+
+  function renderDashboard() {
+    const total = state.products.length;
+    let expired=0, critical=0, warning=0, safe=0;
+    state.products.forEach(p => { const d=daysRemaining(p.expiry); const s=statusOf(d); if(s==='expired') expired++; else if(s==='critical') critical++; else if(s==='warning') warning++; else safe++; });
+    const totalStock = state.products.reduce((s,p) => s + (p.qty||0), 0);
+    document.getElementById('dashboardStats').innerHTML = `
+      <div class="stat-item"><div class="number">${total}</div><div class="label">Toplam Ürün</div></div>
+      <div class="stat-item danger"><div class="number">${expired}</div><div class="label">Süresi Geçmiş</div></div>
+      <div class="stat-item warning"><div class="number">${critical}</div><div class="label">Kritik (≤7 gün)</div></div>
+      <div class="stat-item"><div class="number">${warning}</div><div class="label">Uyarı (≤30 gün)</div></div>
+      <div class="stat-item success"><div class="number">${safe}</div><div class="label">Güvenli</div></div>
+      <div class="stat-item"><div class="number">${totalStock}</div><div class="label">Toplam Stok Adedi</div></div>
+    `;
+    document.getElementById('criticalCount').textContent = critical + ' kritik';
+  }
+
+  function renderCriticalList() {
+    const criticals = state.products.map(p => ({...p, days: daysRemaining(p.expiry)})).filter(p => p.days >= 0 && p.days <= 7).sort((a,b) => a.days - b.days);
+    const container = document.getElementById('criticalList');
+    if (criticals.length === 0) { container.innerHTML = `<div class="empty-state"><span class="icon">✅</span><p>Kritik ürün bulunmuyor.</p></div>`; return; }
+    let html = `<table><thead><tr><th>Ürün</th><th>Stok</th><th>SKT</th><th>Kalan Gün</th></tr></thead><tbody>`;
+    criticals.forEach(p => { html += `<tr><td><strong>${escapeHtml(p.name)}</strong> ${p.category ? `<span class="badge">${escapeHtml(p.category)}</span>` : ''}</td><td>${p.qty}</td><td>${formatDate(p.expiry)}</td><td><span class="badge badge-warning">${p.days} gün</span></td></tr>`; });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  function renderExitProductSelect() {
+    const sel = document.getElementById('exitProduct');
+    const val = sel.value;
+    sel.innerHTML = `<option value="">Seçiniz</option>`;
+    state.products.forEach(p => { if (p.qty > 0) sel.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)} (Stok: ${p.qty})</option>`; });
+    if (val) sel.value = val;
+    updateExitProductInfo();
+  }
+  function updateExitProductInfo() {
+    const id = document.getElementById('exitProduct').value;
+    const info = document.getElementById('exitProductInfo');
+    if (!id) { info.innerHTML = ''; return; }
+    const p = state.products.find(x => x.id === id);
+    if (!p) { info.innerHTML = ''; return; }
+    const days = daysRemaining(p.expiry);
+    info.innerHTML = `<span style="display:inline-block; margin-right:16px;"><strong>${escapeHtml(p.name)}</strong> — Stok: ${p.qty}</span><span class="badge">SKT: ${formatDate(p.expiry)}</span> ${getStatusBadge(days)}`;
+  }
+  document.getElementById('exitProduct').addEventListener('change', updateExitProductInfo);
+
+  function renderRecentExits() {
+    const container = document.getElementById('recentExits');
+    const recent = state.exits.slice(-10).reverse();
+    if (!recent.length) { container.innerHTML = `<div class="empty-state"><span class="icon">🔄</span><p>Henüz çıkış yapılmamış.</p></div>`; return; }
+    let html = `<table><thead><tr><th>Ürün</th><th>Miktar</th><th>Sebep</th><th>Tarih</th></tr></thead><tbody>`;
+    recent.forEach(e => { html += `<tr><td>${escapeHtml(e.productName)}</td><td>${e.qty}</td><td>${escapeHtml(e.reason)}</td><td>${formatDateTime(e.date)}</td></tr>`; });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  function renderProductTable() {
+    const search = document.getElementById('listSearch').value.toLowerCase().trim();
+    const filter = document.getElementById('listFilter').value;
+    const sort = document.getElementById('listSort').value;
+    let list = state.products.map(p => ({...p, days: daysRemaining(p.expiry), status: statusOf(daysRemaining(p.expiry))}));
+    if (filter === 'expired') list = list.filter(p => p.status === 'expired');
+    else if (filter === 'critical') list = list.filter(p => p.status === 'critical');
+    else if (filter === 'warning') list = list.filter(p => p.status === 'warning');
+    else if (filter === 'safe') list = list.filter(p => p.status === 'safe');
+    if (search) list = list.filter(p => p.name.toLowerCase().includes(search) || (p.lot && p.lot.toLowerCase().includes(search)));
+    if (sort === 'date_asc') list.sort((a,b) => a.days - b.days);
+    else if (sort === 'date_desc') list.sort((a,b) => b.days - a.days);
+    else if (sort === 'name_asc') list.sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+    else if (sort === 'stock_desc') list.sort((a,b) => (b.qty||0) - (a.qty||0));
+
+    const container = document.getElementById('productTableWrap');
+    if (!list.length) { container.innerHTML = `<div class="empty-state"><span class="icon">📦</span><p>Ürün bulunamadı.</p></div>`; return; }
+    let html = `<table><thead><tr><th>Ürün</th><th>Stok</th><th>Kategori</th><th>Lot</th><th>SKT</th><th>Durum</th><th style="text-align:right;">İşlemler</th></tr></thead><tbody>`;
+    list.forEach(p => {
+      html += `<tr>
+        <td><strong>${escapeHtml(p.name)}</strong></td>
+        <td>${p.qty}</td>
+        <td>${p.category ? escapeHtml(p.category) : '-'}</td>
+        <td>${p.lot ? escapeHtml(p.lot) : '-'}</td>
+        <td>${formatDate(p.expiry)}</td>
+        <td>${getStatusBadge(p.days)}</td>
+        <td style="text-align:right; display:flex; gap:6px; justify-content:flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')"><span>✏️</span></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProductHandler('${p.id}')"><span>🗑️</span></button>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  function renderExitHistory() {
+    const container = document.getElementById('exitHistoryTable');
+    if (!state.exits.length) { container.innerHTML = `<div class="empty-state"><span class="icon">🕒</span><p>Henüz çıkış kaydı yok.</p></div>`; return; }
+    let html = `<table><thead><tr><th>Ürün</th><th>Miktar</th><th>Sebep</th><th>Tarih</th><th style="text-align:right;">İşlem</th></tr></thead><tbody>`;
+    [...state.exits].reverse().forEach(e => {
+      html += `<tr><td>${escapeHtml(e.productName)}</td><td>${e.qty}</td><td>${escapeHtml(e.reason)}</td><td>${formatDateTime(e.date)}</td><td style="text-align:right;"><button class="btn btn-danger btn-sm" onclick="deleteExitHandler('${e.id}')"><span>🗑️</span></button></td></tr>`;
+    });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  function renderDataInfo() {
+    document.getElementById('totalProductsInfo').textContent = state.products.length;
+    document.getElementById('totalExitsInfo').textContent = state.exits.length;
+  }
+
+  // ============================================================
+  //  EVENT HANDLERS (global)
+  // ============================================================
+  window.deleteProductHandler = function(id) {
+    const p = state.products.find(x => x.id === id);
+    if (!p) return;
+    if (!confirm(`"${p.name}" ürününü silmek istediğinize emin misiniz?`)) return;
+    removeProduct(id); renderAll();
+  };
+  window.deleteExitHandler = function(id) {
+    if (!confirm('Bu çıkış kaydını silmek istediğinize emin misiniz?')) return;
+    deleteExit(id); renderAll();
+  };
+
+  // Add product
+  document.getElementById('addProductForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('f_name').value.trim();
+    const qty = parseInt(document.getElementById('f_qty').value) || 0;
+    const cat = document.getElementById('f_cat').value;
+    const lot = document.getElementById('f_lot').value.trim();
+    const date = document.getElementById('f_date').value;
+    if (!name || !date || qty <= 0) { alert('Lütfen ürün adı, geçerli miktar ve SKT girin.'); return; }
+    addProduct(name, qty, cat, lot, date);
+    document.getElementById('addProductForm').reset();
+    document.getElementById('f_qty').value = '1';
+    renderAll();
+  });
+
+  // Bulk add
+  document.getElementById('bulkAddBtn').addEventListener('click', () => {
+    const text = document.getElementById('bulkText').value;
+    if (!text.trim()) return;
+    const lines = text.split('\n').filter(l => l.trim());
+    let added = 0;
+    lines.forEach(line => {
+      const parts = line.split(',').map(s => s.trim());
+      if (parts.length >= 2) {
+        const name = parts[0], qty = parseInt(parts[1])||0, cat = parts[2]||'', lot = parts[3]||'', expiry = parts[4]||'';
+        if (name && expiry && qty > 0) { addProduct(name, qty, cat, lot, expiry); added++; }
+      }
+    });
+    alert(`${added} ürün eklendi.`);
+    document.getElementById('bulkText').value = '';
+    renderAll();
+  });
+
+  // Exit
+  document.getElementById('exitForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const productId = document.getElementById('exitProduct').value;
+    const qty = parseInt(document.getElementById('exitQty').value) || 0;
+    const reason = document.getElementById('exitReason').value;
+    if (!productId || qty <= 0) { alert('Lütfen bir ürün ve geçerli miktar seçin.'); return; }
+    const result = createExit(productId, qty, reason);
+    if (!result) { alert('Yetersiz stok veya ürün bulunamadı!'); return; }
+    document.getElementById('exitQty').value = '1';
+    renderAll();
+  });
+
+  // Edit modal
+  let editingId = null;
+  window.openEditModal = function(id) {
+    const p = state.products.find(x => x.id === id);
+    if (!p) return;
+    editingId = id;
+    document.getElementById('e_name').value = p.name;
+    document.getElementById('e_qty').value = p.qty || '';
+    document.getElementById('e_cat').value = p.category || '';
+    document.getElementById('e_lot').value = p.lot || '';
+    document.getElementById('e_date').value = p.expiry;
+    document.getElementById('editModal').classList.add('open');
+  };
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+    editingId = null;
+  }
+  document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
+  document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
+  document.getElementById('editModal').addEventListener('click', (e) => { if (e.target.id === 'editModal') closeEditModal(); });
+  document.getElementById('saveEdit').addEventListener('click', () => {
+    if (!editingId) return;
+    const p = state.products.find(x => x.id === editingId);
+    if (!p) return;
+    const name = document.getElementById('e_name').value.trim();
+    const qty = parseInt(document.getElementById('e_qty').value) || 0;
+    const cat = document.getElementById('e_cat').value;
+    const lot = document.getElementById('e_lot').value.trim();
+    const date = document.getElementById('e_date').value;
+    if (!name || !date) { alert('Ürün adı ve SKT zorunludur.'); return; }
+    updateProduct(editingId, { name, qty, category: cat||null, lot: lot||null, expiry: date });
+    closeEditModal();
+    renderAll();
+  });
+
+  // Data management
+  document.getElementById('exportDataBtn').addEventListener('click', () => {
+    const blob = new Blob([exportData()], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `depo_skt_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  document.getElementById('importDataBtn').addEventListener('click', () => document.getElementById('importFileInput').click());
+  document.getElementById('importFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (importData(ev.target.result)) { alert('Veri başarıyla içe aktarıldı!'); renderAll(); }
+      else alert('Geçersiz veri dosyası.');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+  document.getElementById('clearAllDataBtn').addEventListener('click', () => {
+    if (!confirm('Tüm ürünler ve çıkış kayıtları silinecek. Emin misiniz?')) return;
+    if (!confirm('İkinci onay: Bu işlem geri alınamaz!')) return;
+    clearAllData(); renderAll();
+  });
+  document.getElementById('clearExitsBtn').addEventListener('click', () => {
+    if (!confirm('Tüm çıkış geçmişi silinecek. Devam?')) return;
+    clearAllExits(); renderAll();
+  });
+
+  // Navigation
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const pageId = btn.dataset.page;
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      if (pageId === 'cikis') renderExitProductSelect();
+      if (pageId === 'liste') renderProductTable();
+      if (pageId === 'rapor') renderExitHistory();
+      if (pageId === 'veri') renderDataInfo();
+    });
+  });
+
+  // Filter listeners
+  document.getElementById('listSearch').addEventListener('input', renderProductTable);
+  document.getElementById('listFilter').addEventListener('change', renderProductTable);
+  document.getElementById('listSort').addEventListener('change', renderProductTable);
+
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('todayLabel').textContent = now.toLocaleDateString('tr-TR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('clockTime').textContent = now.toLocaleTimeString('tr-TR');
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(renderAll, 60000);
+
+  // ============================================================
+  //  INIT
+  // ============================================================
+  loadData();
+
+  // Demo veri yoksa örnek ekle
+  if (state.products.length === 0) {
+    const sample = [
+      { name: 'Süt 1L', qty: 20, cat: 'Gıda', lot: 'L-001', expiry: '2026-08-15' },
+      { name: 'Yoğurt 500g', qty: 15, cat: 'Gıda', lot: 'L-002', expiry: '2026-07-10' },
+      { name: 'İlaç X', qty: 5, cat: 'İlaç / Sağlık', lot: 'I-123', expiry: '2026-06-01' },
+      { name: 'Şampuan', qty: 8, cat: 'Kozmetik', lot: 'K-45', expiry: '2026-09-20' },
+    ];
+    sample.forEach(s => addProduct(s.name, s.qty, s.cat, s.lot, s.expiry));
+    setTimeout(() => {
+      const p = state.products[0]; if (p) createExit(p.id, 2, 'Satış');
+      const p2 = state.products[1]; if (p2) createExit(p2.id, 1, 'Kullanım');
+      renderAll();
+    }, 100);
+  }
+
+  renderAll();
+  console.log('✅ Depo SKT Pro (Offline) başlatıldı.');
+</script>
 </body>
 </html>
